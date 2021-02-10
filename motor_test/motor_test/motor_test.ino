@@ -46,7 +46,7 @@ int counter_knok()
     count_knok++;
   }
   is_knok_0 = is_knok;
-  is_knok = in_knok();
+  is_knok = !digitalRead(knok);
   return count_knok;
 }
 
