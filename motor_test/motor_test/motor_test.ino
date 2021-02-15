@@ -1,5 +1,5 @@
 #define motor1_a 5
-#define motor1_b 6
+#define motor1_b 3
 #define knok     4
 
 const int degree = 360; //Количество градусов для поворота мешалки
@@ -46,7 +46,7 @@ int counter_knok()
     count_knok++;
   }
   is_knok_0 = is_knok;
-  is_knok = !digitalRead(knok);
+  is_knok = !digitalRead(2);
   return count_knok;
 }
 
@@ -68,7 +68,7 @@ void loop()
 {
   //int is_knok = in_knok();
   count_knok = counter_knok();
-  Serial.print(in_knok());
+  Serial.print(digitalRead(2));
   Serial.print("\t");
   Serial.print(count_knok);
   Serial.print("\n");
