@@ -1,11 +1,9 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-#define motor1_a D5
-#define motor1_b D3
-#define knok     D4
+#define motor1_a 3
+#define motor1_b 5
+#define knok     4
 
 const int degree = 360; //Количество градусов для поворота мешалки
 
@@ -18,21 +16,21 @@ const char* ssid = "robocenter";
 const char* password = "retnecobor";
 
 String page = "<meta charset='utf-8'><p>Покормить кота</p> <a href=\"run\"><button>Кормить</button></a>";
-ESP8266WebServer server(80);
+WiFiServer server(80);
 MDNSResponder mdns;
 
 void motor_stop()
 {
   //analogWrite(motor1_a, 0);
   //analogWrite(motor1_b, 0);
-  digitalWrite(motor1_b, 0);
+  digitalWrite(14, 0);
 }
 
 void motor_run()
 {
   //analogWrite(motor1_a, 0);
   //analogWrite(motor1_b, motor_speed);
-  digitalWrite(motor1_b, 1);
+  digitalWrite(14, 1);
 }
 
 int in_knok()
@@ -53,12 +51,14 @@ int is_knok_0, is_knok = 1;
 
 int counter_knok()
 {
+  yield();
+  delay(0);
   if (is_knok_0 > is_knok)
   {
     count_knok++;
   }
   is_knok_0 = is_knok;
-  is_knok = !digitalRead(knok);
+  is_knok = !digitalRead(2);
   return count_knok;
 }
 
@@ -67,9 +67,9 @@ int how_knok(int degreeds)
   return degreeds / 90;
 }
 
-void go()
+int go()
 {
-  
+  yield();
   count_knok = counter_knok();
   Serial.println(digitalRead(knok));
   if (count_knok <= knoks)
@@ -80,17 +80,18 @@ void go()
   else
   {
     motor_stop();
+    return 1;
   }
 }
 
 void setup()
 {
   Serial.begin(115200);
-
+  
   //pinMode(motor1_a, OUTPUT);
   pinMode(motor1_b, OUTPUT);
   pinMode(knok, INPUT_PULLUP);
-  
+  motor_stop();
   knoks = how_knok(degree);
 
   WiFi.begin(ssid, password);
@@ -106,28 +107,43 @@ void setup()
     Serial.println("MDNS responder started");
   }
 
-  server.on("/", []()
-  {
-    server.send(200, "text/html", page);
-  });
-
-  server.on("/run", []()
-  {
-    //digitalWrite(D5, 1);
-    go();
-    yield();
-    server.send(200, "text/html", page);
-    
-  });
-
   Serial.println("HTTP server started");
   MDNS.addService("http", "tcp", 80);
   server.begin();
 
 }
 
+
+
 void loop()
 {
   MDNS.update();
-  server.handleClient();
+  motor_stop();
+  WiFiClient client = server.available();
+  if (client)
+  {
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-Type: text/html");
+    client.println("");
+    client.println("<meta charset='utf-8'>");
+    client.println("<p>Покормить кота</p>");
+    client.println("<a href=\"run\"><button>Кормить</button></a>");
+    String request = client.readStringUntil('\r');
+    if(request.indexOf("/run") != -1)
+    {
+      yield();
+      while(counter_knok() <= knoks * 2)
+      {
+        yield();
+        delay(0);
+        motor_run();
+        Serial.println(counter_knok());
+      }
+      motor_stop();
+      count_knok = 1;
+      Serial.println("all right");
+      client.println("<script>window.location.href = 'http://esp8266.local';</script>");
+    }
+  }
+
 }
