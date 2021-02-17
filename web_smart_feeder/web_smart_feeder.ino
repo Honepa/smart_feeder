@@ -1,86 +1,55 @@
 #include <ESP8266WiFi.h>
-#include <ESP8266mDNS.h>
+
 
 #define motor1_a 3
-#define motor1_b 5
+#define motor1_b 0
 #define knok     4
 
-const int degree = 360; //Количество градусов для поворота мешалки
 
-int motor_speed = 170; // Скорость поворота
+#define motor1_a_gpio 3
+#define motor1_b_gpio 0
+#define knok_gpio     2
 
-int count_knok = 0;
+const int degree = 180; //Количество градусов для поворота мешалки
+
+int motor_speed = 177; // Скорость поворота
+
+volatile int count_knok = 0;
+unsigned long t = 0;
 int knoks = 0;
 
 const char* ssid = "robocenter";
 const char* password = "retnecobor";
-
+void ICACHE_RAM_ATTR knoking();
 String page = "<meta charset='utf-8'><p>Покормить кота</p> <a href=\"run\"><button>Кормить</button></a>";
 WiFiServer server(80);
-MDNSResponder mdns;
 
 void motor_stop()
 {
-  //analogWrite(motor1_a, 0);
-  //analogWrite(motor1_b, 0);
-  digitalWrite(14, 0);
+  digitalWrite(motor1_a_gpio, 0);
+  digitalWrite(motor1_b_gpio, 0);
 }
 
 void motor_run()
 {
-  //analogWrite(motor1_a, 0);
-  //analogWrite(motor1_b, motor_speed);
-  digitalWrite(14, 1);
+  digitalWrite(motor1_a_gpio, 0);
+  digitalWrite(motor1_b_gpio, 1);
 }
 
-int in_knok()
-{
-  int is_knok = 0;
-  if (!digitalRead(knok))
-  {
-    is_knok = 1;
-  }
-  else
-  {
-    is_knok = 0;
-  }
-  return is_knok;
-}
 
 int is_knok_0, is_knok = 1;
-
-int counter_knok()
-{
-  yield();
-  delay(0);
-  if (is_knok_0 > is_knok)
-  {
-    count_knok++;
-  }
-  is_knok_0 = is_knok;
-  is_knok = !digitalRead(2);
-  return count_knok;
-}
 
 int how_knok(int degreeds)
 {
   return degreeds / 90;
 }
 
-int go()
+void knoking()
 {
-  yield();
-  count_knok = counter_knok();
-  Serial.println(digitalRead(knok));
-  if (count_knok <= knoks)
+  if(millis() - t >= 1000)
   {
-    motor_run();
-    go();
-  }
-  else
-  {
-    motor_stop();
-    return 1;
+    count_knok++;
+    t = millis();
   }
 }
 
@@ -88,9 +57,11 @@ void setup()
 {
   Serial.begin(115200);
   
-  //pinMode(motor1_a, OUTPUT);
+  pinMode(motor1_a, OUTPUT);
   pinMode(motor1_b, OUTPUT);
   pinMode(knok, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), knoking, FALLING);
+  t = millis();
   motor_stop();
   knoks = how_knok(degree);
 
@@ -102,13 +73,10 @@ void setup()
   }
 
   //server.begin();
-  if (MDNS.begin("esp8266", WiFi.localIP()))
-  {
-    Serial.println("MDNS responder started");
-  }
+  
 
   Serial.println("HTTP server started");
-  MDNS.addService("http", "tcp", 80);
+
   server.begin();
 
 }
@@ -117,8 +85,9 @@ void setup()
 
 void loop()
 {
-  MDNS.update();
+  
   motor_stop();
+  count_knok != 0 ? count_knok = 0 : count_knok = 0;
   WiFiClient client = server.available();
   if (client)
   {
@@ -132,15 +101,19 @@ void loop()
     if(request.indexOf("/run") != -1)
     {
       yield();
-      while(counter_knok() <= knoks * 2)
+      while(count_knok < knoks)
       {
         yield();
         delay(0);
         motor_run();
-        Serial.println(counter_knok());
+        
+        Serial.print(count_knok);
+        Serial.print(" ");
+        Serial.print(digitalRead(knok_gpio));
+        Serial.print('\n');
       }
       motor_stop();
-      count_knok = 1;
+      count_knok = 0;
       Serial.println("all right");
       client.println("<script>window.location.href = 'http://esp8266.local';</script>");
     }
