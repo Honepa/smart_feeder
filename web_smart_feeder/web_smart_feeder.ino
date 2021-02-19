@@ -12,8 +12,6 @@
 
 const int degree = 180; //Количество градусов для поворота мешалки
 
-int motor_speed = 177; // Скорость поворота
-
 volatile int count_knok = 0;
 unsigned long t = 0;
 int knoks = 0;
@@ -21,7 +19,13 @@ int knoks = 0;
 const char* ssid = "robocenter";
 const char* password = "retnecobor";
 void ICACHE_RAM_ATTR knoking();
+
 String page = "<meta charset='utf-8'><p>Покормить кота</p> <a href=\"run\"><button>Кормить</button></a>";
+
+IPAddress ip(192,168,1,200);
+IPAddress geteway(192,168,1,1);
+IPAddress subnet(255,255,255,0);
+
 WiFiServer server(80);
 
 void motor_stop()
@@ -53,6 +57,16 @@ void knoking()
   }
 }
 
+String redirect = "<script>window.location.href = 'http://";
+
+String IpAddress2String(const IPAddress& ipAddress)
+{
+  return String(ipAddress[0]) + String(".") +\
+  String(ipAddress[1]) + String(".") +\
+  String(ipAddress[2]) + String(".") +\
+  String(ipAddress[3])  ; 
+}
+
 void setup()
 {
   Serial.begin(115200);
@@ -66,6 +80,7 @@ void setup()
   knoks = how_knok(degree);
 
   WiFi.begin(ssid, password);
+  WiFi.config(ip, geteway, subnet);
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -73,10 +88,12 @@ void setup()
   }
 
   //server.begin();
-  
-
+  String myIP = IpAddress2String(WiFi.localIP());
+  redirect = redirect + myIP;
+  redirect = redirect + "';</script>";
+  Serial.println(WiFi.localIP());
   Serial.println("HTTP server started");
-
+  Serial.println(redirect);
   server.begin();
 
 }
@@ -101,7 +118,7 @@ void loop()
     if(request.indexOf("/run") != -1)
     {
       yield();
-      while(count_knok < knoks)
+      while(count_knok <= knoks)
       {
         yield();
         delay(0);
@@ -115,7 +132,7 @@ void loop()
       motor_stop();
       count_knok = 0;
       Serial.println("all right");
-      client.println("<script>window.location.href = 'http://esp8266.local';</script>");
+      client.println(redirect);
     }
   }
 
