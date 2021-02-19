@@ -113,7 +113,7 @@ void loop()
     client.println("");
     client.println("<meta charset='utf-8'>");
     client.println("<p>Покормить кота</p>");
-    client.println("<a href=\"run\"><button>Кормить</button></a>");
+    client.println("<a href=\"run\"><button style='width:40%; height:30%; display:block; margin:auto;'>Кормить</button></a>");
     String request = client.readStringUntil('\r');
     if(request.indexOf("/run") != -1)
     {
