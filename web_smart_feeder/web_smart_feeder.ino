@@ -22,10 +22,6 @@ void ICACHE_RAM_ATTR knoking();
 
 String page = "<meta charset='utf-8'><p>Покормить кота</p> <a href=\"run\"><button>Кормить</button></a>";
 
-IPAddress ip(192,168,1,200);
-IPAddress geteway(192,168,1,1);
-IPAddress subnet(255,255,255,0);
-
 WiFiServer server(80);
 
 void motor_stop()
@@ -50,7 +46,7 @@ int how_knok(int degreeds)
 
 void knoking()
 {
-  if(millis() - t >= 1000)
+  if (millis() - t >= 1000)
   {
     count_knok++;
     t = millis();
@@ -61,16 +57,16 @@ String redirect = "<script>window.location.href = 'http://";
 
 String IpAddress2String(const IPAddress& ipAddress)
 {
-  return String(ipAddress[0]) + String(".") +\
-  String(ipAddress[1]) + String(".") +\
-  String(ipAddress[2]) + String(".") +\
-  String(ipAddress[3])  ; 
+  return String(ipAddress[0]) + String(".") + \
+         String(ipAddress[1]) + String(".") + \
+         String(ipAddress[2]) + String(".") + \
+         String(ipAddress[3])  ;
 }
 
 void setup()
 {
   Serial.begin(115200);
-  
+
   pinMode(motor1_a, OUTPUT);
   pinMode(motor1_b, OUTPUT);
   pinMode(knok, INPUT_PULLUP);
@@ -80,7 +76,7 @@ void setup()
   knoks = how_knok(degree);
 
   WiFi.begin(ssid, password);
-  WiFi.config(ip, geteway, subnet);
+ 
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -102,7 +98,7 @@ void setup()
 
 void loop()
 {
-  
+
   motor_stop();
   count_knok != 0 ? count_knok = 0 : count_knok = 0;
   WiFiClient client = server.available();
@@ -113,22 +109,23 @@ void loop()
     client.println("");
     client.println("<meta charset='utf-8'>");
     client.println("<p>Покормить кота</p>");
-    client.println("<a href=\"run\"><button style='width:40%; height:30%; display:block; margin:auto;'>Кормить</button></a>");
+    client.println("<a href=\"run\" style='text-decoration: none;'><button style='width:40%; height:30%; display:block; margin:auto; background-color: coral;'>Кормить</button></a>");
     String request = client.readStringUntil('\r');
-    if(request.indexOf("/run") != -1)
+    if (request.indexOf("/run") != -1)
     {
       yield();
-      while(count_knok <= knoks)
+      while (count_knok <= knoks)
       {
         yield();
         delay(0);
         motor_run();
-        
+
         Serial.print(count_knok);
         Serial.print(" ");
         Serial.print(digitalRead(knok_gpio));
         Serial.print('\n');
       }
+      Serial.println("not yet");
       motor_stop();
       count_knok = 0;
       Serial.println("all right");
