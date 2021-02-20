@@ -93,7 +93,7 @@ void setup()
   redirect = redirect + "';</script>";
   Serial.println(WiFi.localIP());
   Serial.println("HTTP server started");
-  Serial.println(redirect);
+  
   server.begin();
 
 }
