@@ -114,7 +114,7 @@ void loop()
     if (request.indexOf("/run") != -1)
     {
       yield();
-      while (count_knok <= knoks)
+      while ((count_knok <= knoks) and client)
       {
         yield();
         delay(0);
