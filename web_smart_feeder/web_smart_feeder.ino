@@ -76,7 +76,7 @@ void setup()
   knoks = how_knok(degree);
 
   WiFi.begin(ssid, password);
- 
+
 
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -114,7 +114,12 @@ void loop()
     if (request.indexOf("/run") != -1)
     {
       yield();
-      while ((count_knok <= knoks) and client)
+      knoks = how_knok(degree);
+      if (!digitalRead(2))
+      {
+        knoks++;
+      }
+      while ((count_knok < knoks) and client)
       {
         yield();
         delay(0);

@@ -10,7 +10,9 @@
 #define motor1_b_gpio 0
 #define knok_gpio     2
 
-const int degree = 180; //Количество градусов для поворота мешалки
+const int degree = 90; //Количество градусов для поворота мешалки
+
+String frontend = "<head><style> body{ background-size: 50px 50px; background-color: #ddd;background-image: -webkit-linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),-webkit-linear-gradient(0deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));background-image: -moz-linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),-moz-linear-gradient(0deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));background-image: linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),linear-gradient(90deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));}</style></head>";
 
 volatile int count_knok = 0;
 unsigned long t = 0;
@@ -93,7 +95,7 @@ void setup()
   redirect = redirect + "';</script>";
   Serial.println(WiFi.localIP());
   Serial.println("HTTP server started");
-  
+
   server.begin();
 
 }
@@ -112,13 +114,19 @@ void loop()
     client.println("Content-Type: text/html");
     client.println("");
     client.println("<meta charset='utf-8'>");
-    client.println("<p>Покормить кота</p>");
+    client.println(frontend);
+    client.println("<center><h1>Покормить кота</h1></center>");
     client.println("<a href=\"run\" style='text-decoration: none;'><button style='width:40%; height:30%; display:block; margin:auto; background-color: coral;'>Кормить</button></a>");
     String request = client.readStringUntil('\r');
     if (request.indexOf("/run") != -1)
     {
       yield();
-      while ((count_knok <= knoks) and client)
+      knoks = how_knok(degree);
+      if(!digitalRead(2))
+      {
+        knoks++;
+      }
+      while ((count_knok < knoks) and client)
       {
         yield();
         delay(0);
@@ -135,6 +143,6 @@ void loop()
       Serial.println("all right");
       client.println(redirect);
     }
-  }
+    }
 
-}
+  }
