@@ -112,17 +112,18 @@ void loop()
   {
     client.println("HTTP/1.1 200 OK");
     client.println("Content-Type: text/html");
-    client.println("");
-    client.println("<meta charset='utf-8'>");
-    client.println(frontend);
-    client.println("<center><h1>Покормить кота</h1></center>");
-    client.println("<a href=\"run\" style='text-decoration: none;'><button style='width:40%; height:30%; display:block; margin:auto; background-color: coral;'>Кормить</button></a>");
     String request = client.readStringUntil('\r');
     if (request.indexOf("/run") != -1)
     {
+      client.println("State: RUN");
+      client.println("");
+      client.println("<meta charset='utf-8'>");
+      client.println(frontend);
+      client.println("<center><h1>Покормить кота</h1></center>");
+      //client.println("<a href=\"run\" style='text-decoration: none;'><button style='width:40%; height:30%; display:block; margin:auto; background-color: coral;'>Кормить</button></a>");
       yield();
       knoks = how_knok(degree);
-      if(!digitalRead(2))
+      if (!digitalRead(2))
       {
         knoks++;
       }
@@ -143,6 +144,17 @@ void loop()
       Serial.println("all right");
       client.println(redirect);
     }
+    else if(request.indexOf("/") != -1)
+    {
+      client.println("State: WAIT");
+      client.println("");
+      client.println("<meta charset='utf-8'>");
+      client.println(frontend);
+      client.println("<center><h1>Покормить кота</h1></center>");
+      client.println("<a href=\"run\" style='text-decoration: none;'><button style='width:40%; height:30%; display:block; margin:auto; background-color: coral;'>Кормить</button></a>");
     }
 
   }
+}
+
+}
