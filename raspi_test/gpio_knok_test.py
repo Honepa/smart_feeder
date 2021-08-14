@@ -20,6 +20,8 @@ k = 0
 
 while k < 10:
     b1.on()
-    if !knok.value:
+    if not knok.value:
         k += 1
+	while knok.value:
+		b +=2
 b1.off()
