@@ -22,6 +22,12 @@ while k < 10:
     b1.on()
     if not knok.value:
         k += 1
+<<<<<<< HEAD
 	while knok.value:
 		b +=2
 b1.off()
+=======
+        while knok.value:
+            b += 2
+b1.off()
+>>>>>>> 38e7269d4e0a5df7f165873976decb12d1278552
