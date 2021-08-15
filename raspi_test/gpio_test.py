@@ -2,9 +2,19 @@ from flask import Flask, render_template, redirect
 import gpiozero
 import vlc
 from time import sleep
+import pyaudio
+import wave
 
 app = Flask(__name__)
 
+FORMAT = pyaudio.paInt16
+CHANNELS = 1
+RATE = 44100
+CHUNK = 512
+RECORD_SECONDS = 10
+WAVE_OUTPUT_FILENAME = "/home/pi/smart_feeder/raspi_test/static/record.wav"
+device_index = 1
+audio = pyaudio.PyAudio()
 
 b1 = gpiozero.LED(27)
 b2 = gpiozero.LED(22)
@@ -48,5 +58,30 @@ def play():
     del player
     return redirect('/', code=302)
 
+@app.route('/record/')
+def record():
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                rate=RATE, input=True,input_device_index = device_index,
+                frames_per_buffer=CHUNK)
+    print ("recording started")
+    Recordframes = []
+ 
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        Recordframes.append(data)
+    print ("recording stopped")
+ 
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+ 
+    waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    waveFile.setnchannels(CHANNELS)
+    waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+    waveFile.setframerate(RATE)
+    waveFile.writeframes(b''.join(Recordframes))
+    waveFile.close()
+    return redirect('/', code=302)
+    
 if __name__ == '__main__':
     app.run()

@@ -2,40 +2,59 @@
 <head>
 <meta charset="utf-8">
 <title>Кормушкa</title>
+<link rel="shortcut icon" href="{{url_for('static', filename='favicon_bowl.ico')}}" type="image/ico">
 <style>
-    body{
-    background-color: pink; 
-   } 
-   .button{
-    background-color: gray;
+  body{
+    background: linear-gradient(transparent 50%, #7FFFD4 50%),
+                linear-gradient(90deg, #7FFFD4 50%, transparent 50%);
+    background-size: 50px 50px;
+    background-image: -webkit-linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),
+        -webkit-linear-gradient(0deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));
+    background-image: -moz-linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),
+        -moz-linear-gradient(0deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));
+    background-image: linear-gradient(transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2)),
+        linear-gradient(90deg, transparent 50%, rgba(136, 136, 136, .2) 50%, rgba(136, 136, 136, .2));
+   }
+   #choice{
+    width: 100%;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .button{
+    display: inline-block;
     text-decoration: none;
-    width: 200px;
-	height: 50px;
-	margin-left: 40px;
-	margin-right: 40px;
-	margin-bottom: 20px;
-	border-radius: 10px;
-	background-color: #fff;
-    border-width: 0;
-    border-radius: 5px;
-    border: 1px solid black;
-   }
-   .a_button{
-    text-decoration: none;
-   }
-   .main_div{
-     display: inline;
-   }
+    border:1px solid #F3F3F3;
+    color: #000;
+    border-radius: 50px 50px 50px 50px;
+     -webkit-border-radius: 50px 50px 50px 50px;
+     -moz-border-radius: 50px 50px 50px 50px;
+    font-family: Times New Roman; 
+    width: auto;
+    height: auto;
+    font-size: 14px;
+    padding: 18px 60px;
+    text-shadow: 0 1px 0 #fff;
+    box-shadow: inset 0 5px 0 0 #dcdcdc,inset 0 -1px 0 0 #dcdcdc,inset 0 0 0 1px #dcdcdc,0 2px 4px 0 #dcdcdc;
+ -moz-box-shadow: inset 0 0 5px 0 #dcdcdc,inset 0 -1px 0 0 #dcdcdc,inset 0 0 0 1px #dcdcdc,0 2px 4px 0 #dcdcdc;
+ -webkit-box-shadow: inset 0 0 5px  0 #dcdcdc,inset 0 -1px 0 0 #dcdcdc,inset 0 0 0 1px #dcdcdc,0 2px 4px 0 #dcdcdc;
+ text-shadow: 0 1px 0 #fff;
+    background-color: #f1f3f4;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+}
 </style>
 </head>
 <body>
 <center><h1>Кормушка</h1></center>
-<center>
-<div class="main_div">
-<div class="button"><a href="/run/" class="a_button">Кормить</a></div>
-<div class="button"><a href="/play/" class="a_button">Голос</a></div>
-<div class="button"><a href="/run/" class="a_button">Запись</a></div>
+<div id="choice">
+<a href="/run/" class="button">Кормить</a>
+<a href="/play/" class="button">Голос</a>
+<a href="/record/" class="button">Запись</a>
 </div>
-</center>
+<center><audio controls="controls" src="/static/record.wav"></audio></center>
 </body>
 </html>
