@@ -1,7 +1,8 @@
 from flask import Flask, render_template, redirect
 import gpiozero
-import vlc
+#import vlc
 from time import sleep
+import os
 import pyaudio
 import wave
 
@@ -46,16 +47,20 @@ def run():
 
 @app.route('/play/')
 def play():
-    player = vlc.MediaPlayer("/home/pi/music/cat.mp3")
-    player.play()
-    sleep(2)
-    while 1:
-        x = player.get_state() 
-        if x not in {1, 2, 3, 4}:
-            break
-    print(1, x)
-    player.stop()
-    del player
+    #print(1)
+    #player = vlc.MediaPlayer("/home/pi/music/cat.mp3")
+    #print(1)
+    #player.play()
+    #sleep(2)
+    #while 1:
+    #    x = player.get_state() 
+    #    if x not in {1, 2, 3, 4}:
+    #        break
+    #print(1, x)
+    #player.stop()
+    #del player
+    os.system("su pi -c 'mpg123 /home/pi/music/cat.mp3'")
+    #sleep(2)
     return redirect('/', code=302)
 
 @app.route('/record/')
